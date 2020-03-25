@@ -19,4 +19,134 @@ c(1,25,77)
 ```{r}
 c("小明今年歲數是", "25")
 ```
+## factor
+
+```{r}
+# 10位學生的主系
+majors10_char <- c('經濟學系','社會學系','社會學系','經濟學系','經濟學系','社會學系','經濟學系','經濟學系','經濟學系','社會學系')
+
+typeof(majors10_char)
+class(majors10_char)
+```
+
+```{r}
+majors10_factor <- factor(majors10_char)
+# 或
+majors10_factor <- factor(
+  c('經濟學系','社會學系','社會學系','經濟學系','經濟學系','社會學系','經濟學系','經濟學系','經濟學系','社會學系')
+)
+
+typeof(majors10_factor)
+class(majors10_factor)
+```
+
+```{r}
+levels(majors10_factor)
+```
+## class/type conversion
+
+```{r}
+stringInteger <- c("1","2","-11")
+class(stringInteger) # 無法進行數值運算
+numericInteger <- as.numeric(stringInteger)
+numericInteger +2
+```
+
+
+
+```{r}
+stringInteger <- c(1,2,-11)
+class(stringInteger) # 無法進行數值運算
+stringInteger+2
+```
+
+exercise
+```{r}
+a <- c(410773002, 410773015)
+as.character(a)
+as.character(c(410773002, 410773015))
+class(a)
+```
+
+```{r}
+studentId <- c(410773002, 410773015)
+studentId <- as.character(studentId)
+```
+
+## Date/Time
+
+```{r}
+browseURL("https://docs.google.com/spreadsheets/d/1EAG49qDKPWWi0ebkVr29TLrvVnoBPfkvxYY-J3xLAHY/edit#gid=458686645")
+```
+
+```{r}
+library(lubridate)
+```
+
+台北 2020-03-18 13:52:40
+```{r}
+tpeDateTime <- ymd_hms("2020-03-18 13:52:40",tz="Asia/Taipei")
+tpeDateTime
+class(tpeDateTime)
+typeof(tpeDateTime)
+as.double(tpeDateTime)
+```
+
+葡萄牙 Mar.18, 2020, 05:52:40
+```{r}
+pgDateTime <- mdy_hms("Mar.18, 2020, 05:52:40",tz="Europe/Lisbon")
+pgDateTime
+typeof(pgDateTime)
+as.double(tpeDateTime)
+as.double(pgDateTime)
+```
+
+```{r}
+with_tz(tpeDateTime, tzone="UTC")
+with_tz(pgDateTime, tzone="UTC")
+```
+```{r}
+ymd_hms("2020-03-04T06:56:29Z", tz="Asia/Taipei")
+ymd_hms("2020-03-04T06:56:29Z", tz="Europe/Lisbon")
+```
+```{r}
+##
+utcTime <- ymd_hms("2020-03-04T06:56:29Z")
+with_tz(
+  utcTime,
+  tzone="Asia/Taipei"
+)
+
+
+##
+with_tz(
+  ymd_hms("2020-03-04T06:56:29Z"),
+  tzone="Asia/Taipei"
+)
+```
+2020-03-04T06:56:29Z	2020-03-11 14:16:43	2020-03-11 14:34:33
+```{r}
+time1 <- ymd_hms("2020-03-04T06:56:29Z")
+time2 <- ymd_hms("2020-03-11 14:16:43", tz="Asia/Taipei")
+time3 <- ymd_hms("2020-03-11 14:34:33",tz="Asia/Taipei")
+studentTime <- c(time1,time2,time3)
+studentTime
+```
+
+```{r}
+studentTime <- c(
+  ymd_hms("2020-03-04T06:56:29Z"),  #time 1 2020-03-04T06:56:29Z
+  ymd_hms(
+    c("2020-03-11 14:16:43","2020-03-11 14:34:33"), tz="Asia/Taipei")  #time 2 and 3
+)
+studentTime
+```
+
+```{r}
+with_tz(studentTime,tzone="Europe/Paris")
+```
+
+```{r}
+
+```
 
