@@ -1,0 +1,22 @@
+---
+title: "03-25"
+author: "林茂廷"
+date: "3/25/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Atomic vector
+
+```{r}
+c("aa","bb","cc")
+c(1,25,77)
+```
+
+```{r}
+c("小明今年歲數是", "25")
+```
+
