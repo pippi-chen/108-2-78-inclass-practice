@@ -1,0 +1,472 @@
+---
+title: "04-08 element extraction 1"
+author: "林茂廷"
+date: "4/7/2020"
+output: html_document
+---
+
+## 選取元素
+
+### 選「一個元素」
+
+#### 用位置選`[[.]]`{#chooseByPosition}
+
+
+```{r}
+vectorExample <- c("小明","小英","大雄")
+
+# 有多少位置可選：
+length(vectorExample)
+```
+
+```{r}
+vectorExample[[1]]
+vectorExample[[3]]
+```
+
+```{r}
+listExample <- 
+  list(
+    student="小明",
+    `學期`=list(
+      `108-1`=list(
+        list(
+          name="個體經濟學",
+          teacher="Alice",
+          grade=85
+        )
+      ),
+      `108-2`=list(
+        list(
+          name="總體經濟學",
+          teacher="Mark",
+          grade=78
+        )
+      )
+    )
+  )
+# 有多少位置可選：
+length(listExample)
+```
+
+```{r}
+listExample[[1]]
+listExample[[2]]
+```
+
+
+
+[臺南市運動地圖](https://data.gov.tw/dataset/6217): 
+```{r}
+library(jsonlite)
+fromJSON("https://data.tainan.gov.tw/dataset/4cd9345a-04bf-4328-a97d-314ff78b4763/resource/afc025fc-1ef4-447c-b785-a680391d0ca1/download/tnsport2.json", simplifyDataFrame = F) -> tainanSportsMap
+
+length(tainanSportsMap)
+```
+```{r}
+tainanSportsMap[[1]] 
+tainanSportsMap[[1076]]
+```
+
+
+#### 用名字選`$.`{-}
+
+```{r}
+# 有多少名字可選：
+names(listExample)
+```
+
+```{r}
+listExample$student
+listExample$`學期` # 特殊命名依然要用反頓點呼叫
+```
+
+```{r}
+str(listExample)
+```
+
+```{r}
+str(listExample$`學期`)
+```
+
+
+其實也可以用`[["名字"]]`來選，只是名字要以字串「值」的方式來寫，也就是要用引號一對\"...\", 不用反頓點一對\`...\`。
+```{r}
+listExample[["student"]]
+listExample$student
+
+listExample[["學期"]] # 小心不是反頓點喔。
+listExample$`學期`
+```
+
+```{r}
+student <- "student"
+listExample[[student]]
+```
+
+
+[新北市各區衛生所之門診時間及疫苗種類彙整表](https://data.gov.tw/dataset/26610#r1)
+```{r}
+fromJSON("http://data.ntpc.gov.tw/api/v1/rest/datastore/382000000A-000157-002",
+         simplifyDataFrame = F) -> newTaipeiCityVaccine
+```
+
+
+```{r}
+str(newTaipeiCityVaccine)
+length(newTaipeiCityVaccine)
+names(newTaipeiCityVaccine)
+```
+```{r}
+str(newTaipeiCityVaccine[[1]])
+str(newTaipeiCityVaccine$success)
+str(newTaipeiCityVaccine[["success"]])
+
+str(newTaipeiCityVaccine[[2]], max.level = 1)
+str(newTaipeiCityVaccine$result, max.level = 1)
+str(newTaipeiCityVaccine[["result"]], max.level = 1)
+```
+
+
+### 選「多個元素」
+
+#### 用位置選`[c(...)]`{-}
+
+```{r}
+vectorExample
+vectorExample[c(1,3)]
+vectorExample[c(3,2,1)] # 產生重新排列效果
+```
+
+```{r}
+# 顯示到第一層
+str(listExample, max.level=1)
+
+str(listExample[c(1,2)], max.level = 1)
+str(listExample[c(2,1)], max.level=1)
+```
+
+
+任選數筆tainanSportsMap的運動地點。
+```{r}
+str(tainanSportsMap, max.level=1)
+str(tainanSportsMap[c(1,382,1076)], max.level=1)
+```
+
+
+#### 用名字選`[c("name1","name2",...)]`{-}
+
+```{r}
+# 顯示到第一層
+str(listExample, max.level=1)
+
+listExample[["學期"]]
+listExample[c("student","學期")]
+listExample[c("學期","student")]
+```
+
+臺北市夜市資料（來自[臺北市食材登錄平台食材來源資訊](https://data.taipei/#/dataset/detail?id=8a569b5b-0cb1-4c7f-a064-780b3301354c)）：
+```{r}
+fromJSON("https://www.dropbox.com/s/qnm9bnz7vccrvcz/taipeiNightMarkets.json?dl=1", simplifyDataFrame = F) -> taipeiNightMarkets
+```
+任選幾個夜市元素出來。
+
+#### 用「要/不要」邏輯向量選`[c(T,T,F,...)]`{-}
+
+```{r}
+vectorExample
+vectorExample[c(T,T,F)] # 要，要，不要
+```
+
+```{r}
+str(listExample)
+str(listExample[c(F,T)]) # 不要，要
+str(listExample[c("學期")])
+str(listExample[c(T,T)]) # 要，要
+```
+
+用「要/不要」邏輯向量自taipeiNightMarkets選出 寧夏觀光夜市，西昌街觀光夜市，大龍街夜市， 雙城街夜市。
+
+```{r}
+names(taipeiNightMarkets)
+```
+
+
+```{r}
+c(T,F,
+  F,F,
+  T,F,
+  F,F,
+  F,T,
+  F,F,
+  F,T) -> selectedMarkets
+taipeiNightMarkets[selectedMarkets]
+
+str(taipeiNightMarkets[c(T,F,
+  F,F,
+  T,F,
+  F,F,
+  F,T,
+  F,F,
+  F,T)], max.level = 1)
+```
+
+```{r}
+selectedMarkets <- rep(F,14) # repeat F by 14 times 
+print(selectedMarkets)
+selectedMarkets[c(1,5,10,14)] <- TRUE
+print(selectedMarkets)
+```
+
+```{r}
+str(taipeiNightMarkets[selectedMarkets],
+    max.level = 1)
+```
+
+
+
+```{r, results="asis"}
+str(listExample, max.level = 3)
+```
+
+```
+listExample: length=2, list class
+  |
+  |--student: length=1, character class
+  |
+  |--學期: length=3, list class
+```
+
+以下兩個表面都是選取"學期":
+```{r}
+get1 <- listExample[["學期"]]
+get2 <- listExample["學期"]
+```
+
+  * `[[]]`: 「拿出」某個物件值。
+  
+```{r}
+# get1 # 學期拿出來，有3個元素的list
+str(listExample, max.level = 3)
+```
+
+```{r}
+get1 <- listExample[["學期"]]
+str(get1, max.level = 1)
+```
+
+  * `[]`: 「留下」某個物件值。
+
+  
+```{r}
+# get1 # 學期拿出來，有3個元素的list
+str(listExample, max.level = 3)
+```
+  
+```{r}
+get2 <- listExample["學期"] # listExample 只留下 學期元素，是個只有一個元素的list
+str(get2, max.level = 1)
+str(get2, max.level = 2)
+```
+```{r}
+str(listExample, max.level = 3)
+```
+```{r}
+str(get1, max.level=1)
+```
+```{r}
+str(get2, max.level=2)
+```
+
+### 連鎖選取
+
+
+```{r}
+numVector <- c(2,3,6,-1,4,2,6)
+select1 <- numVector[c(1,4)]; select1
+select2 <- select1[[1]]; select2
+
+# 相當於
+numVector[c(1,4)][[1]]
+```
+
+```{r}
+select1 <- numVector[c(1,4)]; select1
+```
+
+
+```{r}
+select1 <- numVector[c(T,T,F,T,F,F,T)]; select1
+select2 <- select1[c(1,4)]; select2
+
+# 相當於
+numVector[c(T,T,F,T,F,F,T)][c(1,4)]
+```
+
+```{r}
+majors <- c("經濟學系","經濟學系","社會學系","社工系","經濟學系")
+names <- c("小英", "小美", "大雄","阿華", "阿尼")
+gender <- c("F","F","M","F","M")
+```
+  * 創造出只要"經濟學系"學生的邏輯向量，econOnly。  
+  * 選出econOnly的names與gender。  
+  * 在econOnly的gender下創造出只要"F"的邏輯向量, econFemaleOnly。  
+  * 選出names中為"經濟學系"且"F"的姓名。  
+
+在前面討論使用$及[ ]取一個元素時我們創造了get1與get2兩個物件，請分別由get1, get2取出108-1學期個體經濟學教師姓名。
+
+##### list應用{-}
+
+今明兩日台北市、新北市氣溫：
+```{r}
+today <- list(
+  list("台北市",c(highest_temp = 25),c(lowest_temp = 18)),
+  list("新北市",c(highest_temp = 24),c(lowest_temp = 15)))
+tomorrow <- list(
+  list("台北市",c(highest_temp = 25),c(lowest_temp = 18)),
+  list("新北市",c(highest_temp = 24),c(lowest_temp = 15)))
+
+weather <- list(today,tomorrow)
+
+print(weather)
+```
+
+選出新北市今明最高溫
+```{r}
+weather[[1]][[2]][[2]] # 今天/新北市/highest_temp
+weather[[2]][[2]][[2]] # 明天/新北市/highest_temp
+```
+
+<div class="alert exercise">
+以下選法行得通嗎？
+```{r}
+weather[[1]][[2]]$highest_temp # 今天/新北市/highest_temp
+weather[[2]][[2]]$highest_temp # 明天/新北市/highest_temp
+```
+如果不行，請把weather修改成可以那樣選。
+</div>
+
+<div class="alert exercise">
+由之前<a href="operationonvectorandlist.html#chooseByPosition"><strong>4.1.1.1 用位置選</strong></a>的list範例選出小明108-1學期個體經濟學的老師。
+</div>
+
+#### list補充
+資料來源：https://data.gov.tw/dataset/6015
+
+```{r, eval=TRUE, message=FALSE}
+library(jsonlite)
+fromJSON("https://www.dropbox.com/s/6252gbdnv9owljm/dance.json?dl=1", simplifyDataFrame = F) -> dance
+```
+
+<div class="alert alert-info">
+也可以直接從原始資料載點下載，然而載點資料會隨時更新而造成內容與講義示範有所出入：
+```{r}
+fromJSON("https://cloud.culture.tw/frontsite/trans/SearchShowAction.do?method=doFindTypeJ&category=3", simplifyDataFrame = F) -> dance
+```
+</div>
+
+***  
+
+活動名稱  
+```{r}
+# 前三筆演出的名稱
+dance[[1]]$title
+dance[[2]]$title
+dance[[3]]$title 
+```
+
+<div class="alert alert-info">
+若要針對向量或list裡的每個元素進行相同操作，**purrr**是相當方便的工具，最常用的是：
+```
+map(向量或list, 每個元素要做的事)
+```
+</div>
+
+```{r, eval=T, echo=F, results="asis"}
+img_centering(src="img/mapEveryone.svg", width="40%")
+```
+
+```{r}
+library(purrr)
+map(dance,~.x$title) -> dance_title
+```
+
+*** 
+
+活動場次資訊
+```{r}
+dance[[1]]$showInfo
+length(dance[[1]]$showInfo)
+
+dance[[2]]$showInfo
+length(dance[[1]]$showInfo)
+```
+
+```{r}
+length(dance[[1]]$showInfo)
+length(dance[[2]]$showInfo)
+# :
+length(dance[[34]]$showInfo)
+```
+
+```{r, echo=F, eval=T, results="asis"}
+img_centering("img/mapEveryone2.svg", width = "70%")
+```
+
+```{r}
+map(dance,~length(.x$showInfo)) -> dance_showInfoLength
+```
+
+<div class="alert exercise">
+
+```{r, echo=FALSE, eval=T}
+map(dance,~.x$showInfo) -> dance_showInfo
+map(dance,~map(.x$showInfo, function(y) y[c("time","locationName")])) -> dance_showInfo_time_locationName
+map(dance,~map(.x$showInfo, ~{.x[c("time","locationName")]})) -> dance_showInfo_time_locationName2 # 可以
+
+map(dance,~map(.x$showInfo, ~.x[c("time","locationName")])) -> dance_showInfo_time_locationName3 # 可以
+```
+
+1. 選出每個活動的「活動起始日期」。
+2. 選出每個活動的「活動名稱」及「活動起始日期」。
+3. 選出每個活動showInfo下的每場次之「單場次演出時間」及「場地名稱」。（只用到map, 及~。）<span class="alert-warning">此題有點難，考驗同學map的活用能力。</span><button class="flip">答案應符合的str</button>
+<div class="alert alert-secondary" style="display: none;">
+前兩個元素應有的str:   
+List of 34  
+ $ :List of 1  # 第一個元素  
+  ..$ :List of 2  
+  .. ..$ time        : chr   
+  .. ..$ locationName: chr   
+ $ :List of 3  # 第二個元素  
+  ..$ :List of 2  
+  .. ..$ time        : chr   
+  .. ..$ locationName: chr  
+  ..$ :List of 2  
+  .. ..$ time        : chr   
+  .. ..$ locationName: chr   
+  ..$ :List of 2  
+  .. ..$ time        : chr   
+  .. ..$ locationName: chr   
+:  
+:
+</div>  
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

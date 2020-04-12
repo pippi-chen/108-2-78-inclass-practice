@@ -1,0 +1,192 @@
+---
+title: "元素選取 2"
+author: "林茂廷"
+date: "4/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### 連鎖選取
+
+```{r}
+majors <- c("經濟學系","經濟學系","社會學系","社工系","經濟學系")
+names <- c("小英", "小美", "大雄","阿華", "阿尼")
+gender <- c("F","F","M","F","M")
+```
+  * 創造出只要"經濟學系"學生的邏輯向量，econOnly。  
+  * 選出econOnly的names與gender。  
+  * 在econOnly的gender下創造出只要"F"的邏輯向量, econFemaleOnly。  
+  * 選出names中為"經濟學系"且"F"的姓名。  
+
+
+在前面討論使用$及[ ]取一個元素時我們創造了get1與get2兩個物件，請分別由get1, get2取出108-1學期個體經濟學教師姓名。
+```{r}
+listExample <- 
+  list(
+    student="小明",
+    `學期`=list(
+      `108-1`=list(
+        list(
+          name="個體經濟學",
+          teacher="Alice",
+          grade=85
+        )
+      ),
+      `108-2`=list(
+        list(
+          name="總體經濟學",
+          teacher="Mark",
+          grade=78
+        )
+      )
+    )
+  )
+
+```
+
+```{r}
+str(listExample)
+```
+```{r}
+listExample[[1]]
+listExample[[2]]
+```
+
+
+```{r}
+get1 <- listExample[["學期"]] # 拿出來
+get1 <- listExample$`學期` # 拿出來
+
+
+get2 <- listExample["學期"] # 只留下
+```
+
+
+```{r}
+str(get1)
+```
+
+```{r}
+str(get2)
+```
+
+### get1 取出
+```{r}
+get1$`108-1` -> get1_layer1  # layer_1
+str(get1_layer1)
+```
+
+```{r}
+get1_layer1[[1]] -> get1_layer2 # layer_2 
+str(get1_layer2)
+```
+
+```{r}
+get1_layer2$teacher
+```
+
+```{r}
+get1 <- listExample[["學期"]] # 拿出來
+get1$`108-1` -> get1_layer1  # layer_1
+get1_layer1[[1]] -> get1_layer2 # layer_2 
+get1_layer2$teacher
+
+listExample[["學期"]]$`108-1`[[1]]$teacher
+```
+
+### get2 取出
+```{r}
+get2 <- listExample["學期"]
+get2_layer1 <- get2[[1]] # get2$`學期`; get2[["學期"]]
+get2_layer2 <- get2_layer1[["108-1"]]
+get2_layer3 <- get2_layer2[[1]]
+get2_layer3$teacher
+```
+
+```{r}
+listExample["學期"][[1]][["108-1"]][[1]]$teacher
+listExample["學期"][["學期"]][["108-1"]][[1]]$teacher
+```
+
+
+
+
+
+
+
+
+
+*** 
+##### list應用{-}
+
+```{r}
+vector1 <- c(a=1,b=3,c=4)
+vector1[["a"]]
+vector1[c("a","c")]
+vector1$a
+
+list1 <- list(a=1,b=3,c=4)
+list1[["a"]]
+list1[c("a","c")]
+list1$a
+```
+
+
+今明兩日台北市、新北市氣溫：
+```{r}
+today <- list(
+  list("台北市",c(highest_temp = 25),c(lowest_temp = 18)),
+  list("新北市",c(highest_temp = 24),c(lowest_temp = 15)))
+str(today)
+```
+```{r}
+today <- list(
+  list("台北市",
+       highest_temp=c(highest_temp = 25),
+       lowest_temp=c(lowest_temp = 18)),
+  list("新北市",
+       highest_temp=c(highest_temp = 24),
+       lowest_temp=c(lowest_temp = 15)))
+str(today)
+```
+```{r}
+today[[1]]$highest_temp
+```
+
+
+```{r}
+tomorrow <- list(
+  list("台北市",c(highest_temp = 25),c(lowest_temp = 18)),
+  list("新北市",c(highest_temp = 24),c(lowest_temp = 15)))
+
+weather <- list(today,tomorrow)
+
+str(weather)
+```
+
+選出新北市今明最高溫
+```{r}
+weather[[1]][[2]][[2]] # 今天/新北市/highest_temp
+weather[[2]][[2]][[2]] # 明天/新北市/highest_temp
+```
+
+```{r}
+weather[[1]][[1]][[2]]
+
+```
+
+<div class="alert exercise">
+以下選法行得通嗎？
+```{r}
+weather[[1]][[2]]$highest_temp # 今天/新北市/highest_temp
+weather[[2]][[2]]$highest_temp # 明天/新北市/highest_temp
+```
+如果不行，請把weather修改成可以那樣選。
+</div>
+
+<div class="alert exercise">
+由之前<a href="operationonvectorandlist.html#chooseByPosition"><strong>4.1.1.1 用位置選</strong></a>的list範例選出小明108-1學期個體經濟學的老師。
+</div>
